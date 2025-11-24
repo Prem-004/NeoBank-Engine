@@ -16,3 +16,5 @@ public class OpenApiConfig
                 .description("API documentation for NeoBank Engine").version("1.0.0"));
     }
 }
+/*creating an open API object and attching dthe meta data [new Info().]
+and the title shown in SWAGGER UI and a short description about it.*/
