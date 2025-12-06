@@ -98,20 +98,20 @@ git clone https://github.com/Prem-004/NeoBank-Engine.git
 
 ---
 
-⚙ Database Setup
+## ⚙ Database Setup
 -CREATE DATABASE neo_bank_engine;
 
 ---
 
-Configure DB in application.properties
--spring.datasource.url=jdbc:mysql://localhost:3306/neo_bank_engine
--spring.datasource.username=root
--spring.datasource.password=YOUR_DB_PASSWORD
--spring.jpa.hibernate.ddl-auto=update
+## Configure DB in application.properties
+spring.datasource.url=jdbc:mysql://localhost:3306/neo_bank_engine
+spring.datasource.username=root
+spring.datasource.password=YOUR_DB_PASSWORD
+spring.jpa.hibernate.ddl-auto=update
 
 ---
 
-▶ Run Application
+## ▶ Run Application
 -mvn clean install
 -mvn spring-boot:run
 -Backend starts at:
@@ -119,7 +119,7 @@ Configure DB in application.properties
 
 ---
 
-🔐 API Endpoints Summary
+## 🔐 API Endpoints Summary
 Public
 | Method | Endpoint           |
 | ------ | ------------------ |
@@ -128,7 +128,7 @@ Public
 
 ---
 
-User (JWT required)
+## User (JWT required)
 | Method | Endpoint                    |
 | ------ | --------------------------- |
 | POST   | /api/accounts/create        |
@@ -139,7 +139,7 @@ User (JWT required)
 
 ---
 
-Notifications
+## Notifications
 | Method | Endpoint                        |
 | ------ | ------------------------------- |
 | GET    | /api/notifications              |
@@ -148,14 +148,14 @@ Notifications
 
 ---
 
-PDF Statement
+## PDF Statement
 | Method | Endpoint                         |
 | ------ | -------------------------------- |
 | GET    | /api/accounts/{id}/statement/pdf |
 
 ---
 
-Admin (ROLE_ADMIN)
+## Admin (ROLE_ADMIN)
 | Method | Endpoint                          |
 | ------ | --------------------------------- |
 | GET    | /api/admin/users                  |
@@ -165,7 +165,7 @@ Admin (ROLE_ADMIN)
 
 ---
 
-👨‍💻 Roles
+## 👨‍💻 Roles
 | Role  | Usage           |
 | ----- | --------------- |
 | USER  | normal banking  |
@@ -173,7 +173,7 @@ Admin (ROLE_ADMIN)
 
 ---
 
-📁 Project Structure
+## 📁 Project Structure
 controller/
 service/
 entity/
@@ -185,7 +185,7 @@ config/
 
 ---
 
-Implemented features by days
+## Implemented features by days
 | Day | Task                           |
 | --- | ------------------------------ |
 | 1–3 | basic auth, JWT                |
@@ -205,7 +205,7 @@ Implemented features by days
 
 ---
 
-📎 README Purpose
+## 📎 README Purpose
 -Created as part of Day-16 task:
 -Documentation
 -GitHub readiness
@@ -213,7 +213,7 @@ Implemented features by days
 
 ---
 
-🧪 Testing (Postman)
+## 🧪 Testing (Postman)
 -Register User
 -Login (get token)
 -Create account
@@ -226,7 +226,7 @@ Implemented features by days
 
 ---
 
-📝 Default Data Behavior
+## 📝 Default Data Behavior
 -Account defaults to ACTIVE
 -Withdraw only if balance sufficient
 -Transfer sends notification to both parties
@@ -234,17 +234,17 @@ Implemented features by days
 
 ---
 
-🔧 Optional Email Setup
--spring.mail.host=smtp.gmail.com
--spring.mail.username=you@gmail.com
--spring.mail.password=APP_PASSWORD
--spring.mail.port=587
--spring.mail.properties.mail.smtp.auth=true
--spring.mail.properties.mail.smtp.starttls.enable=true
+## 🔧 Optional Email Setup
+spring.mail.host=smtp.gmail.com
+spring.mail.username=you@gmail.com
+spring.mail.password=APP_PASSWORD
+spring.mail.port=587
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
 
 ---
 
-⭐ Future Enhancements
+## ⭐ Future Enhancements
 -UI (React or Angular)
 -Mobile App (Flutter)
 -UPI/Payments
@@ -256,7 +256,7 @@ Implemented features by days
 
 ---
 
-💡 Learning Outcomes
+## 💡 Learning Outcomes
 -By completing this project, you learned:
 -Spring Boot architecture
 -JWT security system
@@ -268,7 +268,7 @@ Implemented features by days
 
 ---
 
-👨‍💻 Developer
+## 👨‍💻 Developer
 -Prem Prasath
 -Final Year IT
 -Tamil Nadu, India 🇮🇳
@@ -277,7 +277,7 @@ Implemented features by days
 
 ---
 
-📃 License
+## 📃 License
 -This project is open for:
   -learning
   -portfolio
