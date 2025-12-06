@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
-    // JavaMailSender is optional — if not configured, email sending will be skipped with a log.
+    // JavaMailSender is optional in usage – if not configured, you can set this bean or remove mail sending logic.
     private final JavaMailSender mailSender;
 
     // ------------------------------------------------
@@ -55,10 +55,9 @@ public class NotificationService {
     }
 
     // ------------------------------------------------
-    // READ – original simple list
+    // READ – original simple list (all notifications)
     // ------------------------------------------------
     /**
-     * OLD method kept for compatibility.
      * Returns all notifications for user (newest first).
      */
     @Transactional(readOnly = true)
@@ -70,10 +69,10 @@ public class NotificationService {
     }
 
     // ------------------------------------------------
-    // READ – new filtered list (Day 15)
+    // READ – filtered list (unreadOnly + limit)
     // ------------------------------------------------
     /**
-     * NEW: get notifications for a user with optional filters.
+     * Get notifications for a user with optional filters.
      *
      * @param email      user email
      * @param unreadOnly if true, only unread notifications
@@ -86,7 +85,7 @@ public class NotificationService {
 
         List<Notification> list;
         if (Boolean.TRUE.equals(unreadOnly)) {
-            // Make sure this method exists in NotificationRepository:
+            // requires method in NotificationRepository:
             // List<Notification> findByUserEmailAndReadFlagFalseOrderByCreatedAtDesc(String userEmail);
             list = notificationRepository.findByUserEmailAndReadFlagFalseOrderByCreatedAtDesc(email);
         } else {
@@ -105,17 +104,11 @@ public class NotificationService {
     // ------------------------------------------------
     // UNREAD COUNT
     // ------------------------------------------------
-    /**
-     * OLD name used elsewhere.
-     */
     @Transactional(readOnly = true)
     public long countUnread(String userEmail) {
         return notificationRepository.countByUserEmailAndReadFlagFalse(userEmail);
     }
 
-    /**
-     * NEW nicer name – just delegates to countUnread.
-     */
     @Transactional(readOnly = true)
     public long getUnreadCount(String email) {
         return countUnread(email);
@@ -144,8 +137,6 @@ public class NotificationService {
     // ------------------------------------------------
     @Transactional
     public void markAllAsRead(String email) {
-
-        // Uses same repo method as above for unread
         List<Notification> list =
                 notificationRepository.findByUserEmailAndReadFlagFalseOrderByCreatedAtDesc(email);
 

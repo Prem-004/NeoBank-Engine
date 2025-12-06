@@ -6,7 +6,7 @@ import com.neobankengine.entity.Account;
 import com.neobankengine.entity.Transaction;
 import com.neobankengine.entity.User;
 import com.neobankengine.exception.BadRequestException;
-import com.neobankengine.exception.ForbiddenException;`
+import com.neobankengine.exception.ForbiddenException;
 import com.neobankengine.exception.ResourceNotFoundException;
 import com.neobankengine.repository.AccountRepository;
 import com.neobankengine.repository.TransactionRepository;
