@@ -2,170 +2,177 @@
 
 A secure NeoBank backend engine built with Java Spring Boot, supporting account creation, deposits, withdrawals, transfers, PDF statements, notifications, and admin features.
 
-✨ Features
+---
+
+✨ FEATURES
+
 🔐 Authentication (JWT)
+- Register
+- Login
+- Token based authentication
+- Roles (USER, ADMIN)
 
-Register
-
-Login
-
-Token based authentication
-
-Roles (USER, ADMIN)
+---
 
 💳 Banking Operations
+- Create Account
+- Deposit money
+- Withdraw money
+- Send money (Transfers)
+- View balance
+- View transactions
+- Mini statement
+- Full statement
 
-Create Account
-
-Deposit money
-
-Withdraw money
-
-Send money (Transfers)
-
-View balance
-
-View transactions
-
-Mini statement
-
-Full statement
+---
 
 📄 PDF Statement Generation
 
 Includes:
+- Logo
+- Watermark
+- QR verification
+- Summary
+- Opening/Closing balance
+- Timestamp
+- Reference
+- Transaction list
 
-Logo
-
-Watermark
-
-QR verification
-
-Summary
-
-Opening/Closing balance
-
-Timestamp
-
-Reference
-
-Transaction list
+---
 
 🔔 Notification Engine (with email support)
 
 Triggers notifications for:
-
-Deposit
-
-Withdraw
-
-Transfer:
-
-Sender notification
-
-Receiver notification
+- Deposit
+- Withdraw
+- Transfer:
+  - Sender notification
+  - Receiver notification
 
 User features:
-
-Fetch notifications
-
-Mark as read
-
-Unread count
+- Fetch notifications
+- Mark as read
+- Unread count
 
 Optional:
+- Email alerts (requires mail config)
 
-Email alert (requires mail config)
+---
 
 🛡 Administrator Module
-
 Admins can:
+- View all users
+- View all accounts
+- Freeze account
+- Unfreeze account
+- Manage roles *(future update)*
 
-View all users
-
-View all accounts
-
-Freeze account
-
-Unfreeze account
-
-Manage roles (future update)
+---
 
 🧑‍💻 Tech Stack
-Layer	Technology
-Backend	Spring Boot
-Database	MySQL
-ORM	JPA / Hibernate
-Security	Spring Security + JWT
-PDF	iText
-QR Code	ZXing
-Mail	JavaMail
+
+| Layer | Technology |
+|---|---|
+| Backend | Spring Boot |
+| Database | MySQL |
+| ORM | JPA / Hibernate |
+| Security | Spring Security + JWT |
+| PDF | iText |
+| QR Code | ZXing |
+| Mail | JavaMail |
+
+---
+
 📌 Prerequisites
+- Java 21+
+- Maven
+- MySQL 8+
+- IntelliJ or VS Code
+- Internet
 
-Java 21+
-
-Maven
-
-MySQL 8+
-
-IntelliJ or VS Code
-
-Internet
+---
 
 📦 Download / Clone
+```bash
 git clone https://github.com/Prem-004/NeoBank-Engine.git
 
+---
+
 ⚙ Database Setup
+-CREATE DATABASE neo_bank_engine;
 
-Create MySQL database:
+---
 
-CREATE DATABASE neo_bank_engine;
+Configure DB in application.properties
+-spring.datasource.url=jdbc:mysql://localhost:3306/neo_bank_engine
+-spring.datasource.username=root
+-spring.datasource.password=YOUR_DB_PASSWORD
+-spring.jpa.hibernate.ddl-auto=update
 
-🔧 Configure DB in application.properties
-spring.datasource.url=jdbc:mysql://localhost:3306/neo_bank_engine
-spring.datasource.username=root
-spring.datasource.password=YOUR_DB_PASSWORD
-spring.jpa.hibernate.ddl-auto=update
+---
 
 ▶ Run Application
-mvn clean install
-mvn spring-boot:run
+-mvn clean install
+-mvn spring-boot:run
+-Backend starts at:
+-http://localhost:8080
 
-
-Backend starts on:
-
-http://localhost:8080
+---
 
 🔐 API Endpoints Summary
 Public
-POST /api/auth/register
-POST /api/auth/login
+| Method | Endpoint           |
+| ------ | ------------------ |
+| POST   | /api/auth/register |
+| POST   | /api/auth/login    |
 
-User (needs JWT token)
-POST /api/accounts/create
-GET /api/accounts/{id}/balance
-POST /api/accounts/{id}/deposit
-POST /api/accounts/{id}/withdraw
-POST /api/accounts/transfer
+---
+
+User (JWT required)
+| Method | Endpoint                    |
+| ------ | --------------------------- |
+| POST   | /api/accounts/create        |
+| GET    | /api/accounts/{id}/balance  |
+| POST   | /api/accounts/{id}/deposit  |
+| POST   | /api/accounts/{id}/withdraw |
+| POST   | /api/accounts/transfer      |
+
+---
 
 Notifications
-GET /api/notifications
-GET /api/notifications/unread-count
-POST /api/notifications/{id}/read
+| Method | Endpoint                        |
+| ------ | ------------------------------- |
+| GET    | /api/notifications              |
+| GET    | /api/notifications/unread-count |
+| POST   | /api/notifications/{id}/read    |
+
+---
 
 PDF Statement
-GET /api/accounts/{id}/statement/pdf
+| Method | Endpoint                         |
+| ------ | -------------------------------- |
+| GET    | /api/accounts/{id}/statement/pdf |
+
+---
 
 Admin (ROLE_ADMIN)
-GET /api/admin/users
-GET /api/admin/accounts
-POST /api/admin/accounts/{id}/freeze
-POST /api/admin/accounts/{id}/unfreeze
+| Method | Endpoint                          |
+| ------ | --------------------------------- |
+| GET    | /api/admin/users                  |
+| GET    | /api/admin/accounts               |
+| POST   | /api/admin/accounts/{id}/freeze   |
+| POST   | /api/admin/accounts/{id}/unfreeze |
+
+---
 
 👨‍💻 Roles
-Role	Usage
-USER	banking API
-ADMIN	admin endpoints
+| Role  | Usage           |
+| ----- | --------------- |
+| USER  | normal banking  |
+| ADMIN | admin endpoints |
+
+---
+
 📁 Project Structure
 controller/
 service/
@@ -176,140 +183,102 @@ security/
 exception/
 config/
 
-📄 Implemented Features by Days
-Day	Task
-1-3	basic auth, JWT
-4	accounts
-5	deposits / withdraw
-6	transfers
-7	PDF export
-8	PDF improvements
-9	QR code + watermark
-10	RBAC
-11	notifications
-12	mark read & unread count
-13	admin APIs
-14	dashboard DTO
-15	freeze/unfreeze
-16	GitHub deployment (this day)
+---
+
+Implemented features by days
+| Day | Task                           |
+| --- | ------------------------------ |
+| 1–3 | basic auth, JWT                |
+| 4   | accounts                       |
+| 5   | deposits / withdraw            |
+| 6   | transfers                      |
+| 7   | PDF export                     |
+| 8   | PDF improvements               |
+| 9   | QR code + watermark            |
+| 10  | RBAC                           |
+| 11  | notifications                  |
+| 12  | mark read & unread count       |
+| 13  | admin APIs                     |
+| 14  | dashboard DTO                  |
+| 15  | freeze/unfreeze                |
+| 16  | GitHub deployment *(this day)* |
+
+---
+
 📎 README Purpose
+-Created as part of Day-16 task:
+-Documentation
+-GitHub readiness
+-Future-proof developer explanation
 
-This document was created as part of Day-16 task:
+---
 
-proper documentation
+🧪 Testing (Postman)
+-Register User
+-Login (get token)
+-Create account
+-Deposit
+-Withdraw
+-Transfer
+-Notification list
+-PDF statement
+-Admin features
 
-GitHub readiness
-
-future-proof developer explanation
-
-🧪 Testing (Postman Recommended)
-
-Register User
-
-Login (get token)
-
-Create account
-
-Deposit
-
-Withdraw
-
-Transfer
-
-Notification list
-
-PDF statement
-
-Admin features
+---
 
 📝 Default Data Behavior
+-Account defaults to ACTIVE
+-Withdraw only if balance sufficient
+-Transfer sends notification to both parties
+-PDF stored in memory & returned as binary
 
-Account defaults to ACTIVE
-
-Withdraw only if balance sufficient
-
-Transfer sends notification to both parties
-
-PDF stored in memory and returned as binary
+---
 
 🔧 Optional Email Setup
+-spring.mail.host=smtp.gmail.com
+-spring.mail.username=you@gmail.com
+-spring.mail.password=APP_PASSWORD
+-spring.mail.port=587
+-spring.mail.properties.mail.smtp.auth=true
+-spring.mail.properties.mail.smtp.starttls.enable=true
 
-Add in application.properties:
-
-spring.mail.host=smtp.gmail.com
-spring.mail.username=you@gmail.com
-spring.mail.password=APP_PASSWORD
-spring.mail.port=587
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true
+---
 
 ⭐ Future Enhancements
+-UI (React or Angular)
+-Mobile App (Flutter)
+-UPI/Payments
+-SMS alert
+-Graph dashboard
+-Docker deployment
+-Kubernetes
+-Microservices version
 
-UI (React or Angular)
-
-Mobile App (Flutter)
-
-UPI/Payments
-
-SMS alert
-
-Graph dashboard
-
-Docker deployment
-
-Kubernetes
-
-Microservices version
+---
 
 💡 Learning Outcomes
+-By completing this project, you learned:
+-Spring Boot architecture
+-JWT security system
+-Banking logic
+-PDF generation
+-Notifications
+-Admin modules
+-GitHub workflow
 
-By completing this project you learned:
-
-Spring Boot architecture
-
-JWT security system
-
-Banking logic
-
-PDF generation
-
-Notifications
-
-Admin modules
-
-GitHub workflow
+---
 
 👨‍💻 Developer
-Prem Prasath
+-Prem Prasath
+-Final Year IT
+-Tamil Nadu, India 🇮🇳
 
-Final Year IT
-Tamil Nadu, India 🇮🇳
+-GitHub: https://github.com/Prem-004
 
-GitHub: https://github.com/Prem-004
+---
 
 📃 License
-
-This project is open for:
-
-learning
-
-portfolio
-
-personal use
-
-⭐ Final Note
-
-Please ⭐ star this repository if you found it useful.
-It really motivates continued development!
-
-DONE.
-Now save this file as:
-
-README.md
-
-
-Push to GitHub:
-
-git add .
-git commit -m "Added full README"
-git push
+-This project is open for:
+  -learning
+  -portfolio
+  -personal use
