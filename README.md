@@ -95,23 +95,30 @@ Admins can:
 ## 📦 Download / Clone
 ```bash
 git clone https://github.com/Prem-004/NeoBank-Engine.git
+```
 
 ---
 
 ## ⚙ Database Setup
--CREATE DATABASE neo_bank_engine;
+
+```sql
+CREATE DATABASE neo_bank_engine;
+```
 
 ---
 
-## Configure DB in application.properties
+## Configure DB in `application.properties`
+
+```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/neo_bank_engine
 spring.datasource.username=root
 spring.datasource.password=YOUR_DB_PASSWORD
 spring.jpa.hibernate.ddl-auto=update
+```
 
 ---
 
-## ▶ Run Application
+▶ Run Application
 -mvn clean install
 -mvn spring-boot:run
 -Backend starts at:
@@ -120,7 +127,8 @@ spring.jpa.hibernate.ddl-auto=update
 ---
 
 ## 🔐 API Endpoints Summary
-Public
+
+### Public
 | Method | Endpoint           |
 | ------ | ------------------ |
 | POST   | /api/auth/register |
@@ -128,7 +136,7 @@ Public
 
 ---
 
-## User (JWT required)
+### User (JWT required)
 | Method | Endpoint                    |
 | ------ | --------------------------- |
 | POST   | /api/accounts/create        |
@@ -139,7 +147,7 @@ Public
 
 ---
 
-## Notifications
+### Notifications
 | Method | Endpoint                        |
 | ------ | ------------------------------- |
 | GET    | /api/notifications              |
@@ -148,14 +156,14 @@ Public
 
 ---
 
-## PDF Statement
+### PDF Statement
 | Method | Endpoint                         |
 | ------ | -------------------------------- |
 | GET    | /api/accounts/{id}/statement/pdf |
 
 ---
 
-## Admin (ROLE_ADMIN)
+### Admin (ROLE_ADMIN)
 | Method | Endpoint                          |
 | ------ | --------------------------------- |
 | GET    | /api/admin/users                  |
@@ -174,6 +182,7 @@ Public
 ---
 
 ## 📁 Project Structure
+```
 controller/
 service/
 entity/
@@ -182,10 +191,11 @@ dto/
 security/
 exception/
 config/
+```
 
 ---
 
-## Implemented features by days
+## 🧩 Implemented Features (by days)
 | Day | Task                           |
 | --- | ------------------------------ |
 | 1–3 | basic auth, JWT                |
@@ -206,79 +216,82 @@ config/
 ---
 
 ## 📎 README Purpose
--Created as part of Day-16 task:
--Documentation
--GitHub readiness
--Future-proof developer explanation
+- Created as part of Day-16 task  
+- Documentation  
+- GitHub readiness  
+- Future-proof developer explanation  
 
 ---
 
 ## 🧪 Testing (Postman)
--Register User
--Login (get token)
--Create account
--Deposit
--Withdraw
--Transfer
--Notification list
--PDF statement
--Admin features
+- Register User  
+- Login (get token)  
+- Create account  
+- Deposit  
+- Withdraw  
+- Transfer  
+- Notification list  
+- PDF statement  
+- Admin features  
 
 ---
 
 ## 📝 Default Data Behavior
--Account defaults to ACTIVE
--Withdraw only if balance sufficient
--Transfer sends notification to both parties
--PDF stored in memory & returned as binary
+- Account defaults to ACTIVE  
+- Withdraw only if balance sufficient  
+- Transfer sends notification to both parties  
+- PDF returned as binary  
 
 ---
 
 ## 🔧 Optional Email Setup
+```properties
 spring.mail.host=smtp.gmail.com
 spring.mail.username=you@gmail.com
 spring.mail.password=APP_PASSWORD
 spring.mail.port=587
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
+```
 
 ---
 
 ## ⭐ Future Enhancements
--UI (React or Angular)
--Mobile App (Flutter)
--UPI/Payments
--SMS alert
--Graph dashboard
--Docker deployment
--Kubernetes
--Microservices version
+- UI (React / Angular)  
+- Mobile App (Flutter)  
+- UPI/Payments  
+- SMS alert  
+- Graph dashboard  
+- Docker deployment  
+- Kubernetes  
+- Microservices version  
 
 ---
 
 ## 💡 Learning Outcomes
--By completing this project, you learned:
--Spring Boot architecture
--JWT security system
--Banking logic
--PDF generation
--Notifications
--Admin modules
--GitHub workflow
+By doing this project, you learned:
+- Spring Boot architecture  
+- JWT security system  
+- Banking logic  
+- PDF generation  
+- Notifications  
+- Admin modules  
+- GitHub workflow  
 
 ---
 
 ## 👨‍💻 Developer
--Prem Prasath
--Final Year IT
--Tamil Nadu, India 🇮🇳
+Prem Prasath  
+Final Year IT  
+Tamil Nadu, India 🇮🇳  
 
--GitHub: https://github.com/Prem-004
+GitHub: https://github.com/Prem-004  
 
 ---
 
 ## 📃 License
--This project is open for:
-  -learning
-  -portfolio
-  -personal use
+This project is open for:
+- learning  
+- portfolio  
+- personal use
+
