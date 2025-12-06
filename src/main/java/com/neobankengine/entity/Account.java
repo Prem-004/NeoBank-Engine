@@ -6,9 +6,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+public class Account {
 
-public class Account
-{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long accountId;
@@ -17,7 +16,11 @@ public class Account
 
     private Double balance = 0.0;
 
+    /**
+     * ACTIVE or FROZEN (simple string approach)
+     */
     private String status = "ACTIVE";
 
+    @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }
