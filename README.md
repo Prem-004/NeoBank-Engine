@@ -1,12 +1,12 @@
-🚀 NeoBank Engine – Spring Boot Banking Backend
+# 🚀 NeoBank Engine – Spring Boot Banking Backend
 
 A secure NeoBank backend engine built with Java Spring Boot, supporting account creation, deposits, withdrawals, transfers, PDF statements, notifications, and admin features.
 
 ---
 
-✨ FEATURES
+## ✨ FEATURES
 
-🔐 Authentication (JWT)
+### 🔐 Authentication (JWT)
 - Register
 - Login
 - Token based authentication
@@ -14,7 +14,7 @@ A secure NeoBank backend engine built with Java Spring Boot, supporting account 
 
 ---
 
-💳 Banking Operations
+### 💳 Banking Operations
 - Create Account
 - Deposit money
 - Withdraw money
@@ -26,7 +26,7 @@ A secure NeoBank backend engine built with Java Spring Boot, supporting account 
 
 ---
 
-📄 PDF Statement Generation
+### 📄 PDF Statement Generation
 
 Includes:
 - Logo
@@ -40,7 +40,7 @@ Includes:
 
 ---
 
-🔔 Notification Engine (with email support)
+### 🔔 Notification Engine (with email support)
 
 Triggers notifications for:
 - Deposit
@@ -59,7 +59,7 @@ Optional:
 
 ---
 
-🛡 Administrator Module
+### 🛡 Administrator Module
 Admins can:
 - View all users
 - View all accounts
@@ -69,7 +69,7 @@ Admins can:
 
 ---
 
-🧑‍💻 Tech Stack
+## 🧑‍💻 Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -83,7 +83,7 @@ Admins can:
 
 ---
 
-📌 Prerequisites
+## 📌 Prerequisites
 - Java 21+
 - Maven
 - MySQL 8+
@@ -92,7 +92,7 @@ Admins can:
 
 ---
 
-📦 Download / Clone
+## 📦 Download / Clone
 ```bash
 git clone https://github.com/Prem-004/NeoBank-Engine.git
 
