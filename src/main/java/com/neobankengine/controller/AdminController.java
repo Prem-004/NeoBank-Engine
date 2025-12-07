@@ -8,6 +8,7 @@ import com.neobankengine.repository.AccountRepository;
 import com.neobankengine.repository.TransactionRepository;
 import com.neobankengine.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,26 +60,25 @@ public class AdminController {
 
     // Freeze an account (status = FROZEN)
     // Example: PUT /api/admin/accounts/5/freeze
-    @PutMapping("/accounts/{id}/freeze")
-    public String freezeAccount(@PathVariable Long id) {
+    @PostMapping("/accounts/{id}/freeze")
+    public ResponseEntity<String> freezeAccount(@PathVariable Long id) {
         Account acc = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
         acc.setStatus("FROZEN");
         accountRepository.save(acc);
-        return "Account frozen successfully";
+        return ResponseEntity.ok("Account frozen successfully");
     }
 
-    // Unfreeze an account (status = ACTIVE)
-    // Example: PUT /api/admin/accounts/5/unfreeze
-    @PutMapping("/accounts/{id}/unfreeze")
-    public String unfreezeAccount(@PathVariable Long id) {
+    // POST /api/admin/accounts/{id}/unfreeze
+    @PostMapping("/accounts/{id}/unfreeze")
+    public ResponseEntity<String> unfreezeAccount(@PathVariable Long id) {
         Account acc = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 
         acc.setStatus("ACTIVE");
         accountRepository.save(acc);
-        return "Account unfrozen successfully";
+        return ResponseEntity.ok("Account unfrozen successfully");
     }
 
     // ----------------------------------------------------------------

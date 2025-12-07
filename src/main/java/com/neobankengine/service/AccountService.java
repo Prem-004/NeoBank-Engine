@@ -31,7 +31,7 @@ public class AccountService {
     @Transactional
     public Account createAccount(String userEmail, CreateAccountRequest request) {
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found. Please log in again."));
 
         Account account = new Account();
         account.setUserId(user.getId());
@@ -63,7 +63,7 @@ public class AccountService {
     @Transactional(readOnly = true)
     public Double getBalance(Long accountId, String userEmail) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found for the current user."));
 
         // 🚫 Day-15: block non-ACTIVE accounts
         if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) {
@@ -72,10 +72,10 @@ public class AccountService {
 
         // check owner
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found. Please log in again."));
 
         if (!account.getUserId().equals(user.getId())) {
-            throw new ForbiddenException("Access denied");
+            throw new ForbiddenException("You are not allowed to view this account.");
         }
 
         return account.getBalance();
@@ -84,11 +84,11 @@ public class AccountService {
     @Transactional
     public Account deposit(Long accountId, AmountRequest request, String userEmail) {
         if (request.getAmount() == null || request.getAmount() <= 0) {
-            throw new BadRequestException("Amount must be greater than 0");
+            throw new BadRequestException("Deposit amount must be greater than 0.");
         }
 
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found for this user."));
 
         // 🚫 Day-15: block non-ACTIVE accounts
         if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) {
@@ -96,9 +96,9 @@ public class AccountService {
         }
 
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found. Please log in again."));
         if (!account.getUserId().equals(user.getId())) {
-            throw new ForbiddenException("Access denied");
+            throw new ForbiddenException("You are not allowed to deposit into this account.");
         }
 
         account.setBalance((account.getBalance() == null ? 0.0 : account.getBalance()) + request.getAmount());
@@ -123,11 +123,11 @@ public class AccountService {
     @Transactional
     public Account withdraw(Long accountId, AmountRequest request, String userEmail) {
         if (request.getAmount() == null || request.getAmount() <= 0) {
-            throw new BadRequestException("Amount must be greater than 0");
+            throw new BadRequestException("Withdrawal amount must be greater than 0");
         }
 
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found for this user."));
 
         // 🚫 Day-15: block non-ACTIVE accounts
         if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) {
@@ -135,20 +135,20 @@ public class AccountService {
         }
 
         if (userEmail == null || userEmail.isBlank()) {
-            throw new BadRequestException("User email is required");
+            throw new BadRequestException("User email is required to process this request.");
         }
 
         // fetch user by email (findByEmail returns Optional<User>)
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found. Please log in again."));
 
         if (!account.getUserId().equals(user.getId())) {
-            throw new ForbiddenException("Access denied");
+            throw new ForbiddenException("You are not allowed to withdraw from this account.");
         }
 
         double current = account.getBalance() == null ? 0.0 : account.getBalance();
         if (current < request.getAmount()) {
-            throw new BadRequestException("Insufficient balance");
+            throw new BadRequestException("Insufficient balance to complete this withdrawal.");
         }
 
         account.setBalance(current - request.getAmount());
@@ -178,18 +178,18 @@ public class AccountService {
     @Transactional
     public String transfer(String userEmail, Long fromAccountId, Long toAccountId, Double amount, String note) {
         if (amount == null || amount <= 0) {
-            throw new BadRequestException("Amount must be greater than 0");
+            throw new BadRequestException("Transfer amount must be greater than 0.");
         }
 
         if (fromAccountId.equals(toAccountId)) {
-            throw new BadRequestException("From and To account must be different");
+            throw new BadRequestException("Source and destination accounts must be different.");
         }
 
         Account accountFrom = accountRepository.findById(fromAccountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Sender account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Source account not found."));
 
         Account accountTo = accountRepository.findById(toAccountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Receiver account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Destination account not found"));
 
         // 🚫 Day-15: block non-ACTIVE accounts for sender & receiver
         if (!"ACTIVE".equalsIgnoreCase(accountFrom.getStatus())) {
@@ -201,15 +201,15 @@ public class AccountService {
 
         // Verify caller owns the from-account
         User caller = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("Caller user not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found. Please log in again."));
         if (!accountFrom.getUserId().equals(caller.getId())) {
-            throw new ForbiddenException("Access denied - not owner of source account");
+            throw new ForbiddenException("You are not allowed to transfer from this account.");
         }
 
         // Verify balances
         double fromBalance = accountFrom.getBalance() == null ? 0.0 : accountFrom.getBalance();
         if (fromBalance < amount) {
-            throw new BadRequestException("Insufficient balance");
+            throw new BadRequestException("Insufficient balance to complete this transfer.");
         }
 
         // Load sender & receiver users to get emails for notifications
@@ -263,12 +263,12 @@ public class AccountService {
         // if no date requested, return current balance
         if (fromDate == null) {
             Account acc = accountRepository.findById(accountId)
-                    .orElseThrow(() -> new RuntimeException("Account not found"));
+                    .orElseThrow(() -> new RuntimeException("Account not found for this user."));
             return acc.getBalance() == null ? 0.0 : acc.getBalance();
         }
 
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new RuntimeException("Account not found for this user."));
 
         // fetch all transactions for account
         List<Transaction> txs = transactionRepository.findByAccountId(accountId);

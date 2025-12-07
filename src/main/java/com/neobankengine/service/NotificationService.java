@@ -120,10 +120,10 @@ public class NotificationService {
     @Transactional
     public void markAsRead(Long notificationId, String userEmail) {
         Notification n = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found."));
 
         if (!n.getUserEmail().equals(userEmail)) {
-            throw new ForbiddenException("Cannot modify another user's notification");
+            throw new ForbiddenException("You are not allowed to modify this notification.");
         }
 
         if (!n.isReadFlag()) {

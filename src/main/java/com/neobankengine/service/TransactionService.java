@@ -36,14 +36,14 @@ public class TransactionService {
 
         // Verify account exists
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new RuntimeException("Account not found for this user."));
 
         // Verify user exists and is the owner
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found. Please log in again."));
 
         if (!account.getUserId().equals(user.getId())) {
-            throw new RuntimeException("Access denied");
+            throw new RuntimeException("You are not allowed to view transactions for this account.");
         }
 
         // Pageable: Sort newest first
