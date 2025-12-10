@@ -6,6 +6,7 @@ import com.neobankengine.entity.Account;
 import com.neobankengine.entity.Transaction;
 import com.neobankengine.entity.User;
 import com.neobankengine.exception.BadRequestException;
+import com.neobankengine.exception.BusinessRuleException;
 import com.neobankengine.exception.ForbiddenException;
 import com.neobankengine.exception.ResourceNotFoundException;
 import com.neobankengine.repository.AccountRepository;
@@ -28,14 +29,64 @@ public class AccountService {
     private final TransactionRepository transactionRepository;
     private final NotificationService notificationService; // injected
 
+    // ---- Business rule constants ----
+    private static final double MIN_BALANCE_AFTER_DEBIT = 1000.0;   // ₹1000 must remain after withdraw/transfer
+    private static final double MAX_TX_AMOUNT = 50000.0;            // ₹50,000 per transaction
+
+    // ---- Helper methods for rules ----
+
+    /** Ensure account is ACTIVE, otherwise throw ForbiddenException. */
+    private void ensureAccountActive(Account account, String messageIfNotActive) {
+        if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) {
+            throw new ForbiddenException(messageIfNotActive);
+        }
+    }
+
+    /** Ensure amount is > 0. */
+    private void ensureAmountPositive(Double amount, String label) {
+        if (amount == null || amount <= 0) {
+            throw new BadRequestException(label + " amount must be greater than 0.");
+        }
+    }
+
+    /** Ensure amount is within per-transaction limit. */
+    private void ensureMaxPerTxLimit(Double amount) {
+        if (amount != null && amount > MAX_TX_AMOUNT) {
+            throw new BusinessRuleException(
+                    String.format("Maximum allowed per transaction is ₹%.0f.", MAX_TX_AMOUNT)
+            );
+        }
+    }
+
+    /** Ensure that after debiting 'debitAmount', at least MIN_BALANCE_AFTER_DEBIT remains. */
+    private void ensureMinBalanceAfterDebit(Account account, double debitAmount) {
+        double current = account.getBalance() == null ? 0.0 : account.getBalance();
+        double newBalance = current - debitAmount;
+        if (newBalance < MIN_BALANCE_AFTER_DEBIT) {
+            throw new BusinessRuleException(
+                    String.format("You must maintain a minimum balance of ₹%.0f", MIN_BALANCE_AFTER_DEBIT)
+            );
+        }
+    }
+
+    // ----------------------------------------------------
+    // ACCOUNT CREATION
+    // ----------------------------------------------------
+
     @Transactional
     public Account createAccount(String userEmail, CreateAccountRequest request) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found. Please log in again."));
 
+        Double initial = request.getInitialDeposit() == null ? 0.0 : request.getInitialDeposit();
+        if (initial < 0) {
+            throw new BadRequestException("Initial deposit cannot be negative.");
+        }
+        ensureMaxPerTxLimit(initial);
+
         Account account = new Account();
         account.setUserId(user.getId());
-        account.setBalance(request.getInitialDeposit() == null ? 0.0 : request.getInitialDeposit());
+        account.setBalance(initial);
         account.setStatus("ACTIVE");
         account.setCreatedAt(LocalDateTime.now());
 
@@ -60,15 +111,16 @@ public class AccountService {
         return saved;
     }
 
+    // ----------------------------------------------------
+    // BALANCE
+    // ----------------------------------------------------
+
     @Transactional(readOnly = true)
     public Double getBalance(Long accountId, String userEmail) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found for the current user."));
 
-        // 🚫 Day-15: block non-ACTIVE accounts
-        if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) {
-            throw new ForbiddenException("Account is not active");
-        }
+        ensureAccountActive(account, "Account is not active");
 
         // check owner
         User user = userRepository.findByEmail(userEmail)
@@ -81,19 +133,20 @@ public class AccountService {
         return account.getBalance();
     }
 
+    // ----------------------------------------------------
+    // DEPOSIT
+    // ----------------------------------------------------
+
     @Transactional
     public Account deposit(Long accountId, AmountRequest request, String userEmail) {
-        if (request.getAmount() == null || request.getAmount() <= 0) {
-            throw new BadRequestException("Deposit amount must be greater than 0.");
-        }
+        Double amount = request.getAmount();
+        ensureAmountPositive(amount, "Deposit");
+        ensureMaxPerTxLimit(amount);
 
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found for this user."));
 
-        // 🚫 Day-15: block non-ACTIVE accounts
-        if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) {
-            throw new ForbiddenException("Account is not active");
-        }
+        ensureAccountActive(account, "Account is not active");
 
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found. Please log in again."));
@@ -101,44 +154,43 @@ public class AccountService {
             throw new ForbiddenException("You are not allowed to deposit into this account.");
         }
 
-        account.setBalance((account.getBalance() == null ? 0.0 : account.getBalance()) + request.getAmount());
+        double current = account.getBalance() == null ? 0.0 : account.getBalance();
+        account.setBalance(current + amount);
         Account updated = accountRepository.save(account);
 
         Transaction t = new Transaction();
         t.setAccountId(accountId);
         t.setType("CREDIT");
-        t.setAmount(request.getAmount());
+        t.setAmount(amount);
         t.setReferenceText("Deposit");
         t.setTimestamp(LocalDateTime.now());
         transactionRepository.save(t);
 
-        // Notification after saving the transaction
         String title = "Deposit Successful";
-        String msg = String.format("₹%.2f deposited to account %d", request.getAmount(), accountId);
+        String msg = String.format("₹%.2f deposited to account %d", amount, accountId);
         notificationService.createNotification(user.getEmail(), title, msg, "DEPOSIT", null);
 
         return updated;
     }
 
+    // ----------------------------------------------------
+    // WITHDRAW
+    // ----------------------------------------------------
+
     @Transactional
     public Account withdraw(Long accountId, AmountRequest request, String userEmail) {
-        if (request.getAmount() == null || request.getAmount() <= 0) {
-            throw new BadRequestException("Withdrawal amount must be greater than 0");
-        }
+        Double amount = request.getAmount();
+        ensureAmountPositive(amount, "Withdrawal");
 
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found for this user."));
 
-        // 🚫 Day-15: block non-ACTIVE accounts
-        if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) {
-            throw new ForbiddenException("Account is not active");
-        }
+        ensureAccountActive(account, "Account is not active");
 
         if (userEmail == null || userEmail.isBlank()) {
             throw new BadRequestException("User email is required to process this request.");
         }
 
-        // fetch user by email (findByEmail returns Optional<User>)
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found. Please log in again."));
 
@@ -147,24 +199,28 @@ public class AccountService {
         }
 
         double current = account.getBalance() == null ? 0.0 : account.getBalance();
-        if (current < request.getAmount()) {
+
+        // 1) basic insufficient balance check
+        if (current < amount) {
             throw new BadRequestException("Insufficient balance to complete this withdrawal.");
         }
 
-        account.setBalance(current - request.getAmount());
+        // 2) business rule: maintain minimum balance of ₹1000
+        ensureMinBalanceAfterDebit(account, amount);
+
+        account.setBalance(current - amount);
         Account updated = accountRepository.save(account);
 
         Transaction t = new Transaction();
         t.setAccountId(accountId);
         t.setType("DEBIT");
-        t.setAmount(request.getAmount());
+        t.setAmount(amount);
         t.setReferenceText("Withdraw");
         t.setTimestamp(LocalDateTime.now());
         transactionRepository.save(t);
 
-        // Notification for withdrawal
         String title = "Withdrawal Successful";
-        String msg = String.format("₹%.2f withdrawn from account %d", request.getAmount(), accountId);
+        String msg = String.format("₹%.2f withdrawn from account %d", amount, accountId);
         notificationService.createNotification(user.getEmail(), title, msg, "WITHDRAW", null);
 
         return updated;
@@ -175,11 +231,14 @@ public class AccountService {
         return e -> userRepository.findByEmail(email);
     }
 
+    // ----------------------------------------------------
+    // TRANSFER
+    // ----------------------------------------------------
+
     @Transactional
     public String transfer(String userEmail, Long fromAccountId, Long toAccountId, Double amount, String note) {
-        if (amount == null || amount <= 0) {
-            throw new BadRequestException("Transfer amount must be greater than 0.");
-        }
+        ensureAmountPositive(amount, "Transfer");
+        ensureMaxPerTxLimit(amount);
 
         if (fromAccountId.equals(toAccountId)) {
             throw new BadRequestException("Source and destination accounts must be different.");
@@ -189,15 +248,10 @@ public class AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException("Source account not found."));
 
         Account accountTo = accountRepository.findById(toAccountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Destination account not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Destination account not found."));
 
-        // 🚫 Day-15: block non-ACTIVE accounts for sender & receiver
-        if (!"ACTIVE".equalsIgnoreCase(accountFrom.getStatus())) {
-            throw new ForbiddenException("Sender account is not active");
-        }
-        if (!"ACTIVE".equalsIgnoreCase(accountTo.getStatus())) {
-            throw new ForbiddenException("Receiver account is not active");
-        }
+        ensureAccountActive(accountFrom, "Sender account is not active");
+        ensureAccountActive(accountTo, "Receiver account is not active");
 
         // Verify caller owns the from-account
         User caller = userRepository.findByEmail(userEmail)
@@ -205,6 +259,9 @@ public class AccountService {
         if (!accountFrom.getUserId().equals(caller.getId())) {
             throw new ForbiddenException("You are not allowed to transfer from this account.");
         }
+
+        // Business rule: minimum balance after transfer
+        ensureMinBalanceAfterDebit(accountFrom, amount);
 
         // Verify balances
         double fromBalance = accountFrom.getBalance() == null ? 0.0 : accountFrom.getBalance();
@@ -258,6 +315,10 @@ public class AccountService {
         return "Transfer Successful";
     }
 
+    // ----------------------------------------------------
+    // OPENING BALANCE FOR STATEMENT
+    // ----------------------------------------------------
+
     @Transactional(readOnly = true)
     public Double getBalanceBefore(Long accountId, LocalDate fromDate) {
         // if no date requested, return current balance
@@ -288,7 +349,6 @@ public class AccountService {
         double current = account.getBalance() == null ? 0.0 : account.getBalance();
 
         // opening balance = current balance - net of transactions that happened on/after cutoff
-        double opening = current - netSinceCutoff;
-        return opening;
+        return current - netSinceCutoff;
     }
 }

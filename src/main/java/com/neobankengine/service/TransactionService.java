@@ -1,6 +1,7 @@
 package com.neobankengine.service;
 
 import com.neobankengine.dto.TransactionResponse;
+import com.neobankengine.dto.AccountAnalyticsResponse;
 import com.neobankengine.entity.Account;
 import com.neobankengine.entity.Transaction;
 import com.neobankengine.entity.User;
@@ -149,4 +150,47 @@ public class TransactionService {
                 ))
                 .collect(Collectors.toList());
     }
+    /**
+     * Simple analytics for an account over an optional date range.
+     * Uses the same ownership checks as getTransactionsForStatement.
+     */
+    @Transactional(readOnly = true)
+    public AccountAnalyticsResponse getAnalytics(
+            Long accountId,
+            String userEmail,
+            LocalDate from,
+            LocalDate to
+    ) {
+        // Reuse existing statement logic (it already checks account & user)
+        var txs = getTransactionsForStatement(accountId, userEmail, from, to);
+
+        double totalCredits = 0.0;
+        double totalDebits = 0.0;
+        long creditCount = 0L;
+        long debitCount = 0L;
+
+        for (TransactionResponse t : txs) {
+            double amt = t.getAmount() == null ? 0.0 : t.getAmount();
+            if ("CREDIT".equalsIgnoreCase(t.getType())) {
+                totalCredits += amt;
+                creditCount++;
+            } else if ("DEBIT".equalsIgnoreCase(t.getType())) {
+                totalDebits += amt;
+                debitCount++;
+            }
+        }
+
+        double netChange = totalCredits - totalDebits;
+
+        AccountAnalyticsResponse resp = new AccountAnalyticsResponse();
+        resp.setAccountId(accountId);
+        resp.setTotalCredits(totalCredits);
+        resp.setTotalDebits(totalDebits);
+        resp.setNetChange(netChange);
+        resp.setCreditCount(creditCount);
+        resp.setDebitCount(debitCount);
+
+        return resp;
+    }
+
 }
